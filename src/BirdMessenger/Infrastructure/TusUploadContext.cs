@@ -1,27 +1,26 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace BirdMessenger.Infrastructure
 {
-    public class TusUploadContext
+    internal class TusUploadContext : ITusUploadContext
     {
-        public TusUploadContext(long totalSize, long uploadedSize, FileInfo uploadFileInfo, Uri uploadFileUrl)
+        public TusUploadContext(long totalSize, long uploadedSize, Uri uploadUrl, object state)
         {
             TotalSize = totalSize;
             UploadedSize = uploadedSize;
-            UploadFileInfo = uploadFileInfo;
-            UploadFileUrl = uploadFileUrl;
+            UploadUrl = uploadUrl;
+            State = state;
         }
-        
-        public   long TotalSize { get; }
 
-        public   long UploadedSize { get; set; }
+        public long TotalSize { get; }
 
-        public  FileInfo UploadFileInfo { get; }
+        public long UploadedSize { get; set; }
+
+        public Uri UploadUrl { get; }
+
+        public object State { get; }
         
-        public  Uri UploadFileUrl { get;}
-        
-        public  Dictionary<object,object> Items { get; set; }
+        public double UploadPercentage { get { return (float)UploadedSize / TotalSize; } }
     }
 }

@@ -1,54 +1,80 @@
+using BirdMessenger.Collections;
+using BirdMessenger.Delegates;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using BirdMessenger.Infrastructure;
 
 namespace BirdMessenger
 {
     public interface ITusClient
     {
-        event Action<TusUploadContext> UploadFinish;
+        /// <summary>
+        /// upload completition event
+        /// </summary>
+        event TusUploadDelegate UploadFinish;
 
         /// <summary>
-        /// uri  offset fileLength 
+        /// upload progress event
         /// </summary>
-        event Action<TusUploadContext> Uploading;
-        
-        
+        event TusUploadDelegate UploadProgress;
+
         /// <summary>
-        /// create a url for upload file
+        /// tus client base options
+        /// </summary>
+        ITusClientOptions Options { get; }
+
+        /// <summary>
+        /// create a url for blob upload
+        /// </summary>
+        /// <param name="blobLength"></param>
+        /// <param name="metadataCollection"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<Uri> Create(long blobLength, MetadataCollection metadataCollection = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// create a url for file upload
         /// </summary>
         /// <param name="fileInfo"></param>
-        /// <param name="uploadMetaDic"></param>
-        /// <param name="ct"></param>
+        /// <param name="metadataCollection"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Uri> Create(FileInfo fileInfo, Dictionary<string, string> uploadMetaDic = null,
-            CancellationToken ct = default(CancellationToken));
-        
+        Task<Uri> Create(FileInfo fileInfo, MetadataCollection metadataCollection = null, CancellationToken cancellationToken = default);
+
         /// <summary>
-        /// upload file
+        /// upload blob asynchronously
         /// </summary>
-        /// <param name="url"></param>
-        /// <param name="uploadFileInfo"></param>
-        /// <param name="ct"></param>
+        /// <param name="uploadUrl"></param>
+        /// <param name="blobStream"></param>
+        /// <param name="state"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> Upload(Uri url, FileInfo uploadFileInfo, CancellationToken ct = default(CancellationToken));
-        
+        Task<bool> Upload(Uri uploadUrl, Stream blobStream, object state, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// upload file asynchronously
+        /// </summary>
+        /// <param name="uploadUrl"></param>
+        /// <param name="uploadFileInfo"></param>
+        /// <param name="state"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<bool> Upload(Uri uploadUrl, FileInfo uploadFileInfo, object state, CancellationToken cancellationToken = default);
+
         /// <summary>
         /// delete file
         /// </summary>
         /// <param name="fileUrl"></param>
-        /// <param name="ct"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<bool> DeleteFile(Uri fileUrl, CancellationToken ct = default(CancellationToken));
+        Task<bool> DeleteFile(Uri fileUrl, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// get serverInfo
+        /// get server information
         /// </summary>
-        /// <param name="ct"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<Dictionary<string, string>> ServerInfo(CancellationToken ct = default(CancellationToken));
+        Task<OptionCollection> ServerInformation(CancellationToken cancellationToken = default);
     }
 }

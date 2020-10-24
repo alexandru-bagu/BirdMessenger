@@ -19,28 +19,37 @@ BirdMessnger 是一个基于.NET Standard 的 Tus协议的实现客户端。
 
 Package manager
 
-``Install-Package BirdMessenger -Version 1.0.1``
+``Install-Package BirdMessenger -Version 2.0.0``
 
 .NET CLI
 
-``dotnet add package BirdMessenger --version 1.0.1``
+``dotnet add package BirdMessenger --version 2.0.0``
 
 ## Getting Started
 
 ```C#
+// file to be uploaded
+FileInfo fileInfo = new FileInfo("test.txt");
 
-            FileInfo fileInfo = new FileInfo("test");           
-            var hostUri = new Uri(@"http://localhost:5000/files");
-            var tusClient=TusBuild.DefaultTusClientBuild(hostUri)
-                .Build();
-            tusClient.Uploading += printUploadProcess;
-            tusClient.UploadFinish += UploadFinish;
-            Dictionary<string, string> dir = new Dictionary<string, string>();
-            dir["filename"] = fileInfo.FullName;
+// remote tus service
+var hostUri = new Uri(@"http://localhost:5000/files");
 
-            var fileUrl = await tusClient.Create(fileInfo, dir);
-            var uploadResult = await tusClient.Upload(fileUrl, fileInfo);
+// build a standalone tus client instance
+var tusClient = TusBuild.DefaultTusClientBuild(hostUri).Build();
 
+//hook up events
+tusClient.UploadProgress += printUploadProcess;
+tusClient.UploadFinish += uploadFinish;
+
+//define additional file metadata 
+MetadataCollection metadata = new MetadataCollection();
+metadata["filename"] = fileInfo.FullName;
+
+//create upload url
+var fileUrl = await tusClient.Create(fileInfo, metadata);
+
+//upload file
+var uploadResult = await tusClient.Upload(fileUrl, fileInfo);
 ```
 
 * You can see more examples in unit tests
@@ -49,13 +58,15 @@ Package manager
 
 [Wiki](https://github.com/bluetianx/BirdMessenger/wiki)
 
-## Roadmap
+## Development
 
-I develop on the Dev branch
+Development is done on the 'dev' branch. 
 
-## Who is using
+## Who is using the library
 
 * [China National Petroleum Corporation](https://www.cnpc.com.cn/cnpc/index.shtml)
+* [BSS-ONE](https://www.bss-one.ro)
+
 ## Support and Sponsorship
 
 <a href="https://www.jetbrains.com" target="_blank">
